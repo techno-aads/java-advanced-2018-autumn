@@ -25,7 +25,7 @@ TRASH_LIST = ""
 
 all: ./src build
 	$(JAVA) $(JAVA_DEPS) $(SRC_PATH)/$(TASK_PATH) && \
-	    $(JAVA) -cp $(TARGET_PATH) $(TASK_PATH_JAVA).$(MAIN_SRC_NAME)
+	    $(JAVA) -cp $(TARGET_PATH) $(TASK_PATH_JAVA).$(MAIN_SRC_NAME) $(filter-out $@,$(MAKECMDGOALS))
 
 build: create_target
 	$(JAVAC) -cp $(SRC_PATH) $(SRC_PATH)/$(TASK_PATH)/$(MAIN_SRC_NAME)$(JAVA_SUFFIX) -d $(TARGET_PATH)
