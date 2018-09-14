@@ -12,7 +12,7 @@ package ru.ifmo.task1;
  */
 public class Walker {
 
-    public static void main(String[] args) {
+    public static void main(String... args) {
         /**
          * todo: проверить аргументы на корректность и передать дальше если всё ок
          * args[0] - входной файл
@@ -21,7 +21,7 @@ public class Walker {
         new Walker().run(/* todo */);
     }
 
-    //todo: дополнить сигнатуру метода входными файлами, полученными в main
+    // todo: дополнить сигнатуру метода входными файлами, полученными в main
     // При необходимости создайте дополнительные классы
     // hint: Вывести результат хеша в правильном формате - String.format("%08x", hash)
     private void run() {

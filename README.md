@@ -1,3 +1,9 @@
+This program is starting using makefile.
+
+Use targets: make clean all
+
+To compile and run the program
+
 # java-advanced-2018-autumn
 
 # Задание 1
