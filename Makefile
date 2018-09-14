@@ -31,7 +31,8 @@ build: create_target
 	$(JAVAC) -cp $(SRC_PATH) $(SRC_PATH)/$(TASK_PATH)/$(MAIN_SRC_NAME)$(JAVA_SUFFIX) -d $(TARGET_PATH)
 
 test_build: create_target
-	$(JAVAC) $(JAVAC_TEST_FLAGS) -cp src -d $(TARGET_PATH)
+	$(JAVAC) $(JAVAC_TEST_FLAGS) -cp $(SRC_PATH) \
+	    $(SRC_PATH)/$(TASK_PATH)/$(MAIN_SRC_NAME)$(JAVA_SUFFIX) -d $(TARGET_PATH)
 
 test: test_build
 	echo "No tests provided. STUB"
