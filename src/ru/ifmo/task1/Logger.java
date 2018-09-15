@@ -1,6 +1,5 @@
 package ru.ifmo.task1;
 
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -33,8 +32,9 @@ public class Logger {
 
         this.consoleOutput = consoleOutput;
 
-        // WTF?! 1 << 10 doesn't validates
-        final int bufferSize = 1024;
+        // WTF?! 1 << 12 doesn't validates
+        // regular block size in linux
+        final int bufferSize = 4096;
         this.out = new BufferedWriter(new FileWriter(this.file), bufferSize);
         this.info("Logger have been initialised");
     }

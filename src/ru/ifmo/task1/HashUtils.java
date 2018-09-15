@@ -1,5 +1,10 @@
 package ru.ifmo.task1;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.FileReader;
+
 /**
  * Created by Nechaev Mikhail
  * Since 09/09/2018.
@@ -12,10 +17,25 @@ public class HashUtils {
     private static final int MULTIPLIER = 0x01000193;
     private static final int LOW_BITS = 0xff;
 
+    private static final int BLOCK_SIZE = 4096;
 
-    public static int calculate(/* todo */) {
+    private static Logger logger = new Logger();
+
+    public static int calculate(File input) throws IOException {
         int hash = INITIAL_VALUE;
-        //todo: для каждого байта файла: hash = update(hash, nextByte);
+
+        try (BufferedReader bio = new BufferedReader(new FileReader(input), BLOCK_SIZE)) {
+            int bt = 0;
+            while (bt != -1) {
+                bt = bio.read();
+                if (bt != -1) {
+                    hash = update(hash, (byte)bt);
+                }
+            }
+        } catch(IOException e) {
+            logger.error("It looks like smth have happened during bytes reading");
+            return 0;
+        }
         return hash;
     }
 

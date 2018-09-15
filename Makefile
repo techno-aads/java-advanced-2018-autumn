@@ -21,7 +21,7 @@ CLASS_SUFFIX = .class
 COMPILED_CLASS = $(shell $(TASK_PATH).$(MAIN_SRC_NAME) | sed s/\\./\\//g)
 
 # TODO: add an output file here
-TRASH_LIST = ""
+TRASH_LIST = "info"
 
 all: ./src build
 	$(JAVA) $(JAVA_DEPS) $(SRC_PATH)/$(TASK_PATH) && \
