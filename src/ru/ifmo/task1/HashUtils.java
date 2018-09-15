@@ -1,5 +1,9 @@
 package ru.ifmo.task1;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+
 /**
  * Created by Nechaev Mikhail
  * Since 09/09/2018.
@@ -13,10 +17,21 @@ public class HashUtils {
     private static final int LOW_BITS = 0xff;
 
 
-    public static int calculate(/* todo */) {
+    public static int calculate(String filePath) {
         int hash = INITIAL_VALUE;
-        //todo: для каждого байта файла: hash = update(hash, nextByte);
-        return hash;
+        byte[] bytes = new byte[4096];
+        int bytesRead;
+
+        try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(filePath))) {
+            while ((bytesRead = inputStream.read(bytes)) != -1) {
+                for (int i = 0; i < bytesRead; i++) {
+                    hash = update(hash, bytes[i]);
+                }
+            }
+            return hash;
+        } catch (IOException e){
+            return INCORRECT_FILE_HASH;
+        }
     }
 
     private static int update(int currentHash, byte nextByte) {
