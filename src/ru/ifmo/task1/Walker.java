@@ -96,6 +96,8 @@ public class Walker {
     }
 
     private void writeHashes(File output, Map<String, Integer> hashes) throws IOException {
+        logger.info("writing new hashes");
+
         Set<String> keys = hashes.keySet();
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(output), BLOCK_SIZE)) {
             for (String key: keys) {
@@ -114,7 +116,10 @@ public class Walker {
         List<Watcher> watchers = new ArrayList<>();
         for (File f: getObservingDirs(input)) {
             if (f.isDirectory()) {
-                watchers.add(new Watcher(f, output));
+                Watcher w = new Watcher(f, output);
+                watchers.add(w);
+                w.setWatches(f);
+                (new Thread(w)).start();
             }
         }
 
@@ -122,14 +127,27 @@ public class Walker {
         final Map<String, Integer> hashes = new HashMap<>();
         while (true) {
             final Map<String, Integer> newHashes = new HashMap<>();
-            for (Watcher w: watchers) {
+            for (Watcher w : watchers) {
                 newHashes.putAll(w.getHashes());
             }
+            logger.info("Checking hashes " + newHashes.keySet().toString());
 
-            if (!hashes.equals(newHashes)) {
-                hashes.clear();
-                hashes.putAll(newHashes);
-                writeHashes(output, hashes);
+            logger.info("hahses changed");
+            hashes.clear();
+            hashes.putAll(newHashes);
+            writeHashes(output, hashes);
+
+            boolean changed = false;
+            while (!changed) {
+                for (Watcher w : watchers) {
+                    boolean c = w.changed();
+                    if (c) {
+                        changed = true;
+                        w.unchange();
+                        logger.info("found change");
+                        break;
+                    }
+                }
             }
         }
     }

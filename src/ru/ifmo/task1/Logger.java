@@ -5,10 +5,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.FileWriter;
+import java.sql.SQLOutput;
 
 public class Logger {
     private File file;
-    private boolean consoleOutput = false;
+    private boolean consoleOutput;
     private final BufferedWriter out;
 
     public Logger() {
@@ -43,7 +44,7 @@ public class Logger {
     private static final String WARNING_PREFIX = "!Warning: ";
     private static final String ERROR_PREFIX = "ERROR: ";
 
-    private void print(final String msg) throws IOException {
+    private void print(final String msg) {
         if (this.consoleOutput) {
             System.out.println(msg);
         }
@@ -54,24 +55,26 @@ public class Logger {
         // try (this.out) {
         try (BufferedWriter bw = this.out) {
             bw.write(msg);
+        } catch (IOException e) {
+            System.out.println("An exception accrued while writing log: " + e.getMessage());
         }
     }
 
-    public void info(final String msg) throws IOException {
+    public void info(final String msg) {
         final String time = "[" + String.valueOf(System.currentTimeMillis()) + "] ";
         String message = INFO_PREFIX + time + msg;
 
         print(message);
     }
 
-    public void warning(final String msg) throws IOException {
+    public void warning(final String msg) {
         final String time = "[" + String.valueOf(System.currentTimeMillis()) + "] ";
         String message = WARNING_PREFIX + time + msg;
 
         print(message);
     }
 
-    public void error(final String msg) throws IOException {
+    public void error(final String msg) {
         final String time = "[" + String.valueOf(System.currentTimeMillis()) + "] ";
         String message = ERROR_PREFIX + time + msg;
 
