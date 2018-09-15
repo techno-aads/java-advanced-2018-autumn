@@ -1,5 +1,7 @@
 package ru.ifmo.task1;
 
+import java.io.IOException;
+
 /**
  * Created by Nechaev Mikhail
  * Since 09/09/2018.
@@ -12,12 +14,12 @@ package ru.ifmo.task1;
  */
 public class Walker {
 
-    public static void main(String... args) {
-        /**
-         * todo: проверить аргументы на корректность и передать дальше если всё ок
-         * args[0] - входной файл
-         * args[1] - выходной файл
-         */
+    private static Logger logger = new Logger();
+
+    public static void main(String... args) throws IOException {
+        if (args.length < 2) {
+            logger.error("not enough parameters have been passed");
+        }
         new Walker().run(/* todo */);
     }
 
