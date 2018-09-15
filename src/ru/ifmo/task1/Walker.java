@@ -79,7 +79,11 @@ public class Walker {
     private List<File> getObservingDirs(File input) throws IOException {
         List<File> dirs = new ArrayList<>();
         try (BufferedReader bio = new BufferedReader(new FileReader(input), BLOCK_SIZE)) {
-            dirs.add(new File(bio.readLine()));
+            String line = bio.readLine();
+            while (line != null) {
+                dirs.add(new File(line));
+                line = bio.readLine();
+            }
         } catch (FileNotFoundException e) {
             logger.error("Can't find the input file");
             return new ArrayList<>();
