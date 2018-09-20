@@ -35,7 +35,6 @@ public class Viewer {
                     if (attrs.isDirectory() || attrs.isRegularFile()) {
                         hashes.put(file.toString(), HashUtils.calculate(file.toFile()));
                     }
-                    // todo: watchers to be set
                     return FileVisitResult.CONTINUE;
                 }
             });
