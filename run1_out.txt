@@ -1,0 +1,4 @@
+050c5d2e res/testDir1/a.txt
+050c5d2d res/testDir1/b.txt
+050c5d2c res/testDir1/testDir2/c.txt
+050c5d2b res/testDir1/testDir2/d.txt
