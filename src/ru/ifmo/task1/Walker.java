@@ -1,9 +1,6 @@
 package ru.ifmo.task1;
 
 /**
- * Created by Nechaev Mikhail
- * Since 09/09/2018.
- *
  * При выполнение задания следует обратить внимание на
  *  java.nio.file.Files и java.nio.file.Paths,
  *  а также корректность использование try-with-resources.

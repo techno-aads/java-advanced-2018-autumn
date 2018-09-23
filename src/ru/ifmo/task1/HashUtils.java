@@ -1,9 +1,5 @@
 package ru.ifmo.task1;
 
-/**
- * Created by Nechaev Mikhail
- * Since 09/09/2018.
- */
 public class HashUtils {
 
     public static final int INCORRECT_FILE_HASH = 0;
