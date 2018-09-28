@@ -12,32 +12,39 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Watcher implements Runnable {
+    private File root;
+
     private AtomicBoolean hasChanges = new AtomicBoolean(false);
 
-    private File root;
-    private File output;
-
     private Map<String, Integer> hashes = new HashMap<>();
-    private WatchKey watchKey;
-    private WatchService watchService;
+    private final WatchService watchService;
 
     private Logger logger = new Logger();
 
-    public Watcher(File root, File output) {
+    public Watcher(File root) throws IOException {
         this.root = root;
-        this.output = output;
         this.accountHashes(root);
+        this.watchService = FileSystems.getDefault().newWatchService();
     }
 
     private void accountHashes(File root) {
         Map<String, Integer> hashes = this.hashes;
         try {
-            Files.walkFileTree(root.toPath(), new SimpleFileVisitor<Path>() {
+            Files.walkFileTree(root.toPath(), new SimpleFileVisitor<>() {
                 @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                     if (attrs.isRegularFile()) {
                         hashes.put(file.toString(), HashUtils.calculate(file.toFile()));
                     }
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    if (exc != null) {
+                        throw exc;
+                    }
+                    hashes.put(dir.toString(), HashUtils.calculate(dir.toFile()));
                     return FileVisitResult.CONTINUE;
                 }
             });
@@ -47,15 +54,13 @@ public class Watcher implements Runnable {
     }
 
     public void setWatches(File root) throws IOException {
-        try {
-            this.watchService = FileSystems.getDefault().newWatchService();
-            WatchService service = this.watchService;
-
-            Files.walkFileTree(root.toPath(), new SimpleFileVisitor<Path>() {
+        logger.info("setting watcher for " + root.toString());
+        try (this.watchService) {
+            Files.walkFileTree(root.toPath(), new SimpleFileVisitor<>() {
                 @Override
-                public FileVisitResult  preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
                     dir.register(
-                            service,
+                            Watcher.this.watchService,
                             StandardWatchEventKinds.ENTRY_CREATE,
                             StandardWatchEventKinds.ENTRY_DELETE,
                             StandardWatchEventKinds.ENTRY_MODIFY
@@ -66,7 +71,6 @@ public class Watcher implements Runnable {
             });
         } catch (IOException e) {
             logger.error("Walk tree problem have been araised: " + e.getMessage());
-            this.watchService.close();
             throw e;
         }
     }
@@ -74,13 +78,13 @@ public class Watcher implements Runnable {
     public void run() {
         logger.info("running");
         try {
+            WatchKey watchKey;
             do {
-                this.watchKey = this.watchService.take();
+                watchKey = this.watchService.take();
                 for (WatchEvent<?> event : watchKey.pollEvents()) {
-                    // todo: fixit
+                    // todo: fixit >> lol, forgot what it was
                     this.accountHashes(root);
                     this.hasChanges.set(true);
-
                     logger.info(event.context().toString() + " have been changed");
                 }
             }while(watchKey.reset());

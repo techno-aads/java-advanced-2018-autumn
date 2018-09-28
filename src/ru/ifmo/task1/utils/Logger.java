@@ -5,17 +5,17 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.FileWriter;
-import java.sql.SQLOutput;
 
 public class Logger {
-    private File file;
     private boolean consoleOutput;
     private final BufferedWriter out;
+
+    private static final int BLOCK_SIZE = 4 * 1024;
 
     public Logger() {
         this.consoleOutput = true;
         this.out = null;
-        System.out.println("Logger have been initialised");
+        System.out.println("logger have been initialised");
     }
 
     public Logger(String fileName) throws IOException {
@@ -23,11 +23,11 @@ public class Logger {
     }
 
     private Logger(String fileName, boolean consoleOutput) throws IOException {
-        this.file = new File(fileName);
-        if (this.file.exists() || this.file.isDirectory()) {
+        File file = new File(fileName);
+        if (file.exists() || file.isDirectory()) {
             throw new FileNotFoundException("can't log into a missing file");
         }
-        if (!this.file.canWrite()) {
+        if (!file.canWrite()) {
             throw new IOException("can't write to a file");
         }
 
@@ -35,9 +35,8 @@ public class Logger {
 
         // WTF?! 1 << 12 doesn't validates
         // regular block size in linux
-        final int bufferSize = 4096;
-        this.out = new BufferedWriter(new FileWriter(this.file), bufferSize);
-        this.info("Logger have been initialised");
+        this.out = new BufferedWriter(new FileWriter(file), BLOCK_SIZE);
+        this.info("logger have been initialised");
     }
 
     private static final String INFO_PREFIX = "Info: ";
@@ -51,10 +50,8 @@ public class Logger {
         if (this.out == null) {
             return;
         }
-        // only in java9
-        // try (this.out) {
-        try (BufferedWriter bw = this.out) {
-            bw.write(msg);
+        try (this.out) {
+            this.out.write(msg);
         } catch (IOException e) {
             System.out.println("An exception accrued while writing log: " + e.getMessage());
         }

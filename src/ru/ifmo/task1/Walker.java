@@ -21,6 +21,8 @@ import java.util.function.Function;
 /**
  * Created by Nechaev Mikhail
  * Since 09/09/2018.
+ *
+ * tested with JDK11
  */
 public class Walker {
     private static final int BLOCK_SIZE = 4 * 1024;
@@ -145,7 +147,7 @@ public class Walker {
         try {
             for (File f : getObservingDirs(input)) {
                 if (f.isDirectory()) {
-                    Watcher w = new Watcher(f, output);
+                    Watcher w = new Watcher(f);
                     w.setWatches(f);
                     (new Thread(w)).start();
                     watchers.add(w);

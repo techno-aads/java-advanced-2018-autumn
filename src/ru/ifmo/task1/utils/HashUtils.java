@@ -33,8 +33,8 @@ public class HashUtils {
                 }
             }
         } catch(IOException e) {
-            logger.error("It looks like smth have happened during bytes reading");
-            return 0;
+            logger.error("it looks like smth have happened during bytes reading");
+            return INCORRECT_FILE_HASH;
         }
         return hash;
     }
