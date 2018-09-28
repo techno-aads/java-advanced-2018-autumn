@@ -1,3 +1,9 @@
+This program is starting using makefile.
+
+Use targets: make clean all
+
+To compile and run the program
+
 # java-advanced-2018-autumn
 
 # Задание 1
@@ -16,7 +22,7 @@
 
 Если файл не подходящий или его не удалось прочитать, то его хеш равен `00000000`.
 
-Хеш следует считать с помощью `ru.ifmo.task1.HashUtils#calculate`,
+Хеш следует считать с помощью `ru.ifmo.task1.utils.HashUtils#calculate`,
 предварительно дописав недостающую функциональность.
 
 Если при работе программы возникло исключение несовместимое с её жизнью,
