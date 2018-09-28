@@ -1,4 +1,4 @@
-package ru.ifmo.task1;
+package ru.ifmo.task1.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -21,7 +21,7 @@ public class HashUtils {
 
     private static Logger logger = new Logger();
 
-    public static int calculate(File input) throws IOException {
+    public static int calculate(File input) {
         int hash = INITIAL_VALUE;
 
         try (BufferedReader bio = new BufferedReader(new FileReader(input), BLOCK_SIZE)) {

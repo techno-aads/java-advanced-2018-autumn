@@ -1,4 +1,4 @@
-package ru.ifmo.task1;
+package ru.ifmo.task1.utils;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -22,7 +22,7 @@ public class Logger {
         this(fileName, false);
     }
 
-    public Logger(String fileName, boolean consoleOutput) throws IOException {
+    private Logger(String fileName, boolean consoleOutput) throws IOException {
         this.file = new File(fileName);
         if (this.file.exists() || this.file.isDirectory()) {
             throw new FileNotFoundException("can't log into a missing file");

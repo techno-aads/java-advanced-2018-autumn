@@ -1,6 +1,9 @@
 package ru.ifmo.task1;
 
 
+import ru.ifmo.task1.directory.Watcher;
+import ru.ifmo.task1.utils.Logger;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -18,17 +21,9 @@ import java.util.function.Function;
 /**
  * Created by Nechaev Mikhail
  * Since 09/09/2018.
- *
- * При выполнение задания следует обратить внимание на
- *  java.nio.file.Files и java.nio.file.Paths,
- *  а также корректность использование try-with-resources.
- *
- * https://docs.oracle.com/javase/tutorial/essential/io/index.html
  */
 public class Walker {
-    // it will be better to move common constants into
-    // one file, but I didn't do it since it's just a learning project
-    private static final int BLOCK_SIZE = 4096;
+    private static final int BLOCK_SIZE = 4 * 1024;
 
     private static Logger logger = new Logger();
 
@@ -44,7 +39,7 @@ public class Walker {
         }
     }
 
-    private ParseArgsResult parseArgs(String... args) throws IOException {
+    private ParseArgsResult parseArgs(String... args) {
         if (args.length < 2) {
             logger.error("not enough parameters have been passed");
             return new ParseArgsResult(null, null, false);
@@ -54,8 +49,13 @@ public class Walker {
         File second = new File(args[1]);
 
         boolean created = true;
-        if (!second.exists()) {
-            created = second.createNewFile();
+        try {
+            if (!second.exists()) {
+                created = second.createNewFile();
+            }
+        } catch (IOException e) {
+            logger.error("can't create new output file");
+            created = false;
         }
 
         Function<File, Boolean> checkFile = (f) -> f.exists() && f.isFile() && f.canWrite();
@@ -64,7 +64,7 @@ public class Walker {
                 checkFile.apply(first) && checkFile.apply(second) && created);
     }
 
-    public static void main(String... args) throws IOException {
+    public static void main(String... args) {
         Walker w = new Walker();
 
         ParseArgsResult res = w.parseArgs(args);
@@ -76,7 +76,7 @@ public class Walker {
         w.run(res.input, res.output);
     }
 
-    private List<File> getObservingDirs(File input) throws IOException {
+    private List<File> getObservingDirs(File input) {
         List<File> dirs = new ArrayList<>();
         try (BufferedReader bio = new BufferedReader(new FileReader(input), BLOCK_SIZE)) {
             String line = bio.readLine();
@@ -95,7 +95,7 @@ public class Walker {
         return dirs;
     }
 
-    private void writeHashes(File output, Map<String, Integer> hashes) throws IOException {
+    private static void writeHashes(File output, Map<String, Integer> hashes) throws IOException {
         logger.info("writing new hashes");
 
         Set<String> keys = hashes.keySet();
@@ -109,34 +109,10 @@ public class Walker {
         }
     }
 
-    // hint: Вывести результат хеша в правильном формате - String.format("%08x", hash)
-    private void run(File input, File output) throws IOException {
-        logger.info("Start running");
+    private final static class HashUpdater {
+        final static Map<String, Integer> hashes = new HashMap<>();
 
-        List<Watcher> watchers = new ArrayList<>();
-        for (File f: getObservingDirs(input)) {
-            if (f.isDirectory()) {
-                Watcher w = new Watcher(f, output);
-                watchers.add(w);
-                w.setWatches(f);
-                (new Thread(w)).start();
-            }
-        }
-
-        // infine 'cause it was nothing told about it
-        final Map<String, Integer> hashes = new HashMap<>();
-        while (true) {
-            final Map<String, Integer> newHashes = new HashMap<>();
-            for (Watcher w : watchers) {
-                newHashes.putAll(w.getHashes());
-            }
-            logger.info("Checking hashes " + newHashes.keySet().toString());
-
-            logger.info("hahses changed");
-            hashes.clear();
-            hashes.putAll(newHashes);
-            writeHashes(output, hashes);
-
+        private static void updateHashes(List<Watcher> watchers) {
             boolean changed = false;
             while (!changed) {
                 for (Watcher w : watchers) {
@@ -148,6 +124,45 @@ public class Walker {
                         break;
                     }
                 }
+            }
+
+            final Map<String, Integer> newHashes = new HashMap<>();
+            for (Watcher w : watchers) {
+                newHashes.putAll(w.getHashes());
+            }
+            logger.info("checking hashes " + newHashes.keySet().toString());
+
+            logger.info("hashes changed");
+            hashes.clear();
+            hashes.putAll(newHashes);
+        }
+    }
+
+    private void run(File input, File output) {
+        logger.info("Running");
+
+        List<Watcher> watchers = new ArrayList<>();
+        try {
+            for (File f : getObservingDirs(input)) {
+                if (f.isDirectory()) {
+                    Watcher w = new Watcher(f, output);
+                    w.setWatches(f);
+                    (new Thread(w)).start();
+                    watchers.add(w);
+                }
+            }
+        } catch (IOException e) {
+            logger.error("a problem accrued while setting watcher: " + e.getMessage());
+        }
+
+        // infinite 'cause it was nothing told about it
+        while (true)  {
+            HashUpdater.updateHashes(watchers);
+
+            try {
+                writeHashes(output, HashUpdater.hashes);
+            } catch (IOException e) {
+                logger.error("there is a problem with updating hashes: " + e.getMessage());
             }
         }
     }

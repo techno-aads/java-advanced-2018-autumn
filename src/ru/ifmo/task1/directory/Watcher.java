@@ -1,11 +1,13 @@
-package ru.ifmo.task1;
+package ru.ifmo.task1.directory;
+
+import ru.ifmo.task1.utils.HashUtils;
+import ru.ifmo.task1.utils.Logger;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -62,20 +64,11 @@ public class Watcher implements Runnable {
                     return FileVisitResult.CONTINUE;
                 }
             });
-
         } catch (IOException e) {
             logger.error("Walk tree problem have been araised: " + e.getMessage());
             this.watchService.close();
             throw e;
         }
-    }
-
-    public boolean changed() {
-        return this.hasChanges.get();
-    }
-
-    public void unchange() {
-        this.hasChanges.compareAndSet(true, false);
     }
 
     public void run() {
@@ -94,6 +87,14 @@ public class Watcher implements Runnable {
         } catch (InterruptedException e) {
             logger.error("the watcher was interrupted");
         }
+    }
+
+    public boolean changed() {
+        return this.hasChanges.get();
+    }
+
+    public void unchange() {
+        this.hasChanges.compareAndSet(true, false);
     }
 
     public Map<String, Integer> getHashes() {
