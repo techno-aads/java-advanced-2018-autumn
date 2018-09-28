@@ -38,15 +38,6 @@ public class Watcher implements Runnable {
                     }
                     return FileVisitResult.CONTINUE;
                 }
-
-                @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                    if (exc != null) {
-                        throw exc;
-                    }
-                    hashes.put(dir.toString(), HashUtils.calculate(dir.toFile()));
-                    return FileVisitResult.CONTINUE;
-                }
             });
         } catch (IOException e) {
             logger.error("Walk tree problem have been araised: " + e.getMessage());
@@ -55,7 +46,7 @@ public class Watcher implements Runnable {
 
     public void setWatches(File root) throws IOException {
         logger.info("setting watcher for " + root.toString());
-        try (this.watchService) {
+        try {
             Files.walkFileTree(root.toPath(), new SimpleFileVisitor<>() {
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
@@ -71,7 +62,10 @@ public class Watcher implements Runnable {
             });
         } catch (IOException e) {
             logger.error("Walk tree problem have been araised: " + e.getMessage());
+            this.watchService.close();
             throw e;
+        } catch (ClosedWatchServiceException e) {
+            logger.error("The main watcher was closed since it was IOException");
         }
     }
 
