@@ -5,7 +5,7 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 
 /**
- * Created by Анастасия on 17.09.2018.
+ * File vistor calculates hash of files and erites it to file.
  */
 public class CustomFileVisitor extends SimpleFileVisitor {
 
