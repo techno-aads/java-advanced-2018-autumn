@@ -1,20 +1,23 @@
 package ru.ifmo.task2;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.time.*;
+import java.util.ArrayList;
+import java.util.Comparator;
 
 public class InsideFile {
     String file;
     long size;
-    String Name;
+    String name;
     LocalDateTime mod;
     char r, w, x;
     boolean isDir;
     InsideFile parent;
-    ArrayList <InsideFile> content;
+    ArrayList<InsideFile> content;
 
 
     public InsideFile(Path file, InsideFile parent){
@@ -31,7 +34,7 @@ public class InsideFile {
             size=0;
         }
         isDir=Files.isDirectory(file)? true: false;
-        Name = file.getFileName().toString();
+        name = file.getFileName().toString();
         try {
             mod = LocalDateTime.ofInstant(Files.getLastModifiedTime(file).toInstant(), ZoneId.systemDefault());
         } catch (IOException e) {
@@ -49,7 +52,7 @@ public class InsideFile {
     }
 
     public String getName() {
-        return Name;
+        return name;
     }
 
     public long getSize() {
@@ -74,37 +77,37 @@ public class InsideFile {
             char order = ways[i].charAt(0);
             String comparator = ways[i].substring(1);
             System.out.println(order+" "+comparator);
-            Comparator C=null;
+            Comparator insideComparator;
             switch (comparator) {
                 case "mod":
-                    C = Comparator.comparing(InsideFile::getMod);
+                    insideComparator = Comparator.comparing(InsideFile::getMod);
                     break;
                 case "name":
-                    C = Comparator.comparing(InsideFile::getName);
+                    insideComparator = Comparator.comparing(InsideFile::getName);
                     break;
                 case "size":
-                    C=Comparator.comparing(InsideFile::getSize);
+                    insideComparator=Comparator.comparing(InsideFile::getSize);
                     break;
                     default: System.out.println("Неправильные входные данные");
                     return;
             }
-            if(order=='-') C=C.reversed();
-            if(baseComparator==null) baseComparator=C;
+            if(order=='-') insideComparator=insideComparator.reversed();
+            if(baseComparator==null) baseComparator=insideComparator;
             else{
-                baseComparator=baseComparator.thenComparing(C);
+                baseComparator=baseComparator.thenComparing(insideComparator);
             }
         }
         content.sort(baseComparator);
     }
 
-    public void printInfo ()
+    public void printInfo()
     {
-            int Gs=  (int) (size/Math.pow(2, 30));
-            int Ms= (int)((size - Gs*Math.pow(2, 30))/Math.pow(2, 20));
-            int Kbs = (int)((size - Gs*Math.pow(2, 30)-Ms*Math.pow(2, 20))/Math.pow(2, 10));
-            int bs = (int) (size - Gs*Math.pow(2, 30)-Ms*Math.pow(2, 20) - Kbs*Math.pow(2, 10));
+            int gs=  (int) (size/Math.pow(2, 30));
+            int ms= (int)((size - gs*Math.pow(2, 30))/Math.pow(2, 20));
+            int kbs = (int)((size - gs*Math.pow(2, 30)-ms*Math.pow(2, 20))/Math.pow(2, 10));
+            int bs = (int) (size - gs*Math.pow(2, 30)-ms*Math.pow(2, 20) - kbs*Math.pow(2, 10));
             String info = String.format("%s : %dG %dM %dKb %db : r%sw%sx%s : %s",
-                    Name,Gs, Ms, Kbs, bs,
+                    name,gs, ms, kbs, bs,
                     r, w, x,
                     mod.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")));
             System.out.println(info);

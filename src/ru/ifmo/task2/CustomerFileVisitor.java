@@ -1,10 +1,12 @@
 package ru.ifmo.task2;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
+import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 
-public class CustomerFileVisitor implements FileVisitor <Path> {
+public class CustomerFileVisitor implements FileVisitor<Path> {
     public InsideFile root=null;
     private InsideFile current=null;
 
